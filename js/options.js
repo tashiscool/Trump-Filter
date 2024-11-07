@@ -1,36 +1,26 @@
-function saveOptions() {
-  var selectedFilter = document.getElementById('selectedFilter').value;
+// options.js
 
-  chrome.storage.sync.set({
-    filter: selectedFilter
-  }, function() {
-    var status = document.getElementById('saveMessage');
-    status.textContent = 'Filter selected - ' + selectedFilter;
-    setTimeout(function() {
-      status.textContent = '';
-    }, 750);
+document.addEventListener('DOMContentLoaded', () => {
+  const selectedFilter = document.getElementById('selectedFilter');
+  const saveMessage = document.getElementById('saveMessage');
+  const trumpCount = document.getElementById('trumpcount');
+  const pageCount = document.getElementById('pagecount');
+
+  // Restore options
+  chrome.storage.sync.get({ filter: 'mild', trumps: 0, pages: 0 }, (items) => {
+    selectedFilter.value = items.filter;
+    trumpCount.textContent = items.trumps;
+    pageCount.textContent = items.pages;
   });
-}
 
-function getOptions(callback) {
-  chrome.storage.sync.get({
-    filter: 'mild',
-    trumps: 0,
-    pages: 0
-  }, function(items) {
-    document.getElementById('selectedFilter').value = items.filter;
-    document.getElementById('trumpcount').textContent = items.trumps;
-    document.getElementById('pagecount').textContent = items.pages;
-    callback(items.filter);
-    return items.filter;
+  // Save options on change
+  selectedFilter.addEventListener('change', () => {
+    const filter = selectedFilter.value;
+    chrome.storage.sync.set({ filter: filter }, () => {
+      saveMessage.textContent = 'Filter selected - ' + filter;
+      setTimeout(() => {
+        saveMessage.textContent = '';
+      }, 750);
+    });
   });
-}
-
-function restoreOptions() {
-  getOptions(function(filter) {
-    document.getElementById('selectedFilter').value = filter;
-  });
-  document.getElementById('selectedFilter').addEventListener('change', saveOptions);
-}
-
-document.addEventListener('DOMContentLoaded', restoreOptions);
+});

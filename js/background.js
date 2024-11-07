@@ -1,11 +1,11 @@
-function onMessage(request, sender, sendResponse) {
-  if (request.method == "saveStats") { 
+// background.js
+
+// Listener for messages from content scripts
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.method === "saveStats") {
     console.log("Storing stats...");
-    console.log ("Adding " + request.trumps + " Trumps to stats.");
-    chrome.storage.sync.get({
-      trumps: 0,
-      pages: 0
-    }, function(items) {
+    console.log("Adding " + request.trumps + " Trumps to stats.");
+    chrome.storage.sync.get({ trumps: 0, pages: 0 }, (items) => {
       chrome.storage.sync.set({
         trumps: items.trumps + request.trumps,
         pages: items.pages + 1
@@ -13,20 +13,12 @@ function onMessage(request, sender, sendResponse) {
     });
     sendResponse({});
   } else {
-    // Show icon
+    // Show action icon
     console.log("Putting badge on address bar.");
-    chrome.pageAction.show(sender.tab.id);
+    chrome.action.enable(sender.tab.id);
 
-    // Log event with Google Analytics
-    console.log("Logging Filter event...");
-    chrome.storage.sync.get({
-      filter: 'mild'
-    }, function(items) {
-      console.log("Filtering on " + items.filter + " setting.");
-      ga('send', 'event', 'Filter', 'Trump', items.filter);
-    });
+    // Remove Google Analytics code as it's not supported in MV3
+
     sendResponse({});
   }
-}
-
-chrome.runtime.onMessage.addListener(onMessage);
+});
